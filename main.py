@@ -1,30 +1,36 @@
-from turtle import Turtle, Screen
+import time
+from turtle import Screen
+from player import Player
+from car_manager import CarManager
+from scoreboard import Scoreboard
 
-t = Turtle()
 
-def move_forwards():
-    t.forward(10)
-    
-def move_backwards():
-    t.backward(10)
-    
-def anticlocKwise():
-    t.setheading(t.heading() + 5)
-
-def clockwise():
-    t.setheading(t.heading() - 5)
-    
-def clear():
-    t.reset()   
 screen = Screen()
-
+screen.setup(width=600, height=600)
+screen.tracer(0)
+player = Player()
+car_manager = CarManager()
+scoreboard = Scoreboard()
 screen.listen()
-def keypress(func, input):
-    screen.onkeypress(func, input)
-screen.onkeypress(move_forwards, "w")
-screen.onkeypress(move_backwards, "s")
-screen.onkeypress(anticlocKwise, "a")
-screen.onkeypress(clockwise, "d")
-screen.onkeypress(clear, "c")
+screen.onkey(player.move, "w")
+game_is_on = True
+count = 1
+while game_is_on:
+    time.sleep(0.1 / (scoreboard.level + 1))
+    screen.update()
+    for i in range(len(car_manager.cars)):
+        if player.distance(car_manager.cars[i]) < 30:
+            game_is_on = False
+            scoreboard.game_over()
+    if count % 5 == 0:
+        car_manager.create_car()
+    
+    car_manager.move_all()
+    if player.check_pos():
+        player.reset_pos()
+        scoreboard.next_level()
+        scoreboard.write_level()
+    count+=1
+
 
 screen.exitonclick()
